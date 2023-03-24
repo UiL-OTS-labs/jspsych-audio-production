@@ -32,6 +32,19 @@ class AudioResponseWithTimer extends jsPsychHtmlAudioResponse {
 	this.recorder.addEventListener("start", () => {
 	    interval = setInterval(updateCountdown.bind(this), 100);
 	});
+
+	this.recorder.removeEventListener('stop', this.stop_event_handler);
+	this.recorder.addEventListener('stop', () => {
+	    const data = new Blob(this.recorded_data_chunks, { type: this.recorded_data_chunks[0].type });
+	    this.audio_url = URL.createObjectURL(data);
+	    const reader = new FileReader();
+	    reader.addEventListener("load", () => {
+		const base64 = reader.result.split(",")[1];
+		this.response = base64;
+		this.load_resolver();
+	    });
+	    reader.readAsDataURL(data);
+	});
     }
 }
 
